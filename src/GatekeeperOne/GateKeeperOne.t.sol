@@ -4,6 +4,7 @@ pragma solidity 0.8.10;
 import "forge-std/Test.sol";
 import "forge-std/Vm.sol";
 import { GatekeeperOne } from "./GatekeeperOne.sol";
+import { Hack } from "./GatekeeperOneHack.sol";
 
 contract GatekeeperOneTest is Test {
     GatekeeperOne gateKeeper;
@@ -15,7 +16,13 @@ contract GatekeeperOneTest is Test {
         deal(h3x0r, 1 ether);
     }
 
-    function testGatekeeperOne() public {
-        assertTrue(true);
+    function testGatekeeperOneHack() public {
+        vm.startPrank(h3x0r);
+        Hack hack = new Hack(address(gateKeeper));
+        
+    }
+
+    function testUintConversions() public {
+        
     }
 }
