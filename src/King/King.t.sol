@@ -27,13 +27,17 @@ contract KingTest is Test {
         emit log_named_address("deployer", deployer);
         emit log_named_address("hack contract", address(hack));
 
-        payable(address(king)).transfer(4 ether);
+        payable(address(king)).call{value: 4 ether}("");
         assertEq(king._king(), h3x0r);
         
-        payable(address(hack)).transfer(5 ether);
-        assertEq(address(hack).balance, 5 ether);
-        hack.breakKing();
+        payable(address(hack)).call{value: 5 ether}("");
+        vm.stopPrank();
 
+        emit log_named_address("new king is", king._king());
+        assertEq(king._king(), address(hack));
+        
+        vm.prank(deployer);
+        payable(address(king)).call{value: 6 ether}("");
         assertEq(king._king(), address(hack));
     }
 }

@@ -9,7 +9,7 @@ import { Hack } from "./GatekeeperOneHack.sol";
 contract GatekeeperOneTest is Test {
     GatekeeperOne gateKeeper;
 
-    address h3x0r = vm.addr(1337);
+    address h3x0r = 0x1e0733e312D04a199268E1Aead9Fc3bA91B97cFc;
 
     function setUp() public {
         gateKeeper = new GatekeeperOne();
@@ -19,10 +19,8 @@ contract GatekeeperOneTest is Test {
     function testGatekeeperOneHack() public {
         vm.startPrank(h3x0r);
         Hack hack = new Hack(address(gateKeeper));
+        hack.enterGate();
         
-    }
-
-    function testUintConversions() public {
-        
+        emit log_named_address("entrant", gateKeeper.entrant());
     }
 }
