@@ -2,7 +2,9 @@
 
 pragma solidity ^0.8.10;
 
-contract Privacy {
+// Privacy contract copied and with added function readSlot
+
+contract Read {
 
   bool public locked = true;
   uint256 public ID = block.timestamp;
@@ -18,6 +20,12 @@ contract Privacy {
   function unlock(bytes16 _key) public {
     require(_key == bytes16(data[2]));
     locked = false;
+  }
+
+  function readSlot(uint256 slot) public view returns (bytes32 value) {
+    assembly {
+      value := sload(slot)
+    }
   }
 
   /*
