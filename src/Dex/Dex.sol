@@ -28,7 +28,7 @@ contract Dex  {
   }
 
   function get_swap_price(address from, address to, uint amount) public view returns(uint){
-    return((amount * IERC20(to).balanceOf(address(this)))/IERC20(from).balanceOf(address(this)));
+    return((amount * IERC20(to).balanceOf(address(this))) / IERC20(from).balanceOf(address(this)));
   }
 
   function approve(address spender, uint amount) public {

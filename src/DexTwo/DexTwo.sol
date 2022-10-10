@@ -41,7 +41,14 @@ contract DexTwo  {
 }
 
 contract SwappableTokenTwo is ERC20 {
-  constructor(string memory name, string memory symbol, uint initialSupply) public ERC20(name, symbol) {
+  address private _dex;
+  constructor(address dexInstance, string memory name, string memory symbol, uint initialSupply) public ERC20(name, symbol) {
         _mint(msg.sender, initialSupply);
+        _dex = dexInstance;
+  }
+
+  function approve(address owner, address spender, uint256 amount) public returns(bool){
+    require(owner != _dex, "InvalidApprover");
+    super._approve(owner, spender, amount);
   }
 }
