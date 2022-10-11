@@ -4,7 +4,10 @@ pragma solidity 0.8.10;
 import "forge-std/Test.sol";
 import "forge-std/Vm.sol";
 import { MagicNum } from "./MagicNum.sol";
-import { Solver } from "./Solver.sol";
+
+interface Solver {
+    function whatIsTheMeaningOfLife() external view returns (bytes32);
+}
 
 contract MagicNumTest is Test {
     MagicNum magicNum;
@@ -17,18 +20,41 @@ contract MagicNumTest is Test {
 
     function testMagicNumHack() public {
         vm.startPrank(h3x0r);
-        Solver solver = new Solver();
-        magicNum.setSolver(address(solver));
 
-        uint256 size;
-        assertEq(
-            solver.whatIsTheMeaningOfLife(),
-            0x000000000000000000000000000000000000000000000000000000000000002a,
-            "solver has to return 42 converted to bytes32"
-        );
+         // INIT CODE
+        // 600a -- push 10 (runtime code size)
+        // 600c -- push 12 (runtime code start byte)
+        // 6000 -- push 0 (memory address to copy to)
+        // 39   -- codecopy
+        // 600a -- push amount of bytes to return
+        // 6000 -- memory address to start returning from
+        // f3   -- return 
+        // RUNTIME CODE
+        // 602a -- push value to return (42 in decimal)
+        // 6080 -- push mem address to store
+        // 52   -- mstore
+        // 6020 -- push number of bytes to return
+        // 6080 -- push mem address to return
+        // f3   -- return
+
+        uint size;
+        bytes memory solverCode = "\x60\x0a\x60\x0c\x60\x00\x39\x60\x0a\x60\x00\xf3\x60\x2a\x60\x80\x52\x60\x20\x60\x80\xf3";
+        address solverAddress;
         assembly {
-            size := extcodesize(solver)
+          solverAddress := create(0, add(solverCode, 0x20), mload(solverCode))
+          if iszero(extcodesize(solverAddress)) {
+            revert(0, 0)
+          }
         }
-        assertLt(size, 11, "solver has to be max 10 opcodes");
+
+        assembly {
+            size := extcodesize(solverCode)
+        }
+        assertLt(size, 11, "solver has to be max 10 bytes");
+
+        magicNum.setSolver(solverAddress);
+        bytes32 meaning = Solver(solverAddress).whatIsTheMeaningOfLife();
+        emit log_bytes32(meaning);
+        assertEq(meaning, 0x000000000000000000000000000000000000000000000000000000000000002a);
     }
 }
